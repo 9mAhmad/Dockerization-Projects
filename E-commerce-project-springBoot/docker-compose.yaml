@@ -1,0 +1,60 @@
+services:
+
+  backend:
+    container_name: ecommerce_java
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    # environment:
+    #   server.port: ${SERVER_PORT:-8080}
+    #   db.url: "jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DBNAME:-ecommjava}?createDatabaseIfNotExist=true"
+    #   db.username: ${MYSQL_USER}
+    #   db.password: ${MYSQL_PASSWORD}
+    ports:
+      - "8088:8080"
+    depends_on:
+      - mysql                                           # Ensure that the MySQL container starts before phpMyAdmin    
+    networks:
+      - db_network
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_cont
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} # this is required for docker-compose 
+      MYSQL_DATABASE: ${MYSQL_DBNAME}
+    ports:
+      - "5005:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - type: bind
+        source: ./
+        # source: ./basedata.sql
+        target: /docker-entrypoint-initdb.d
+    networks:
+      - db_network
+
+  mysqladmin:
+    image: phpmyadmin/phpmyadmin:latest                 # Use the latest phpMyAdmin image 
+    container_name: phpmyadmin_container                # Name the phpMyAdmin container 
+    restart: always                                     # Restart the container automatically if it crashes
+    environment:
+      PMA_HOST: mysql                                   # Hostname of the MySQL server (matches the `mysql` service)
+      PMA_USER: root                                    # MySQL root user for phpMyAdmin
+      PMA_PASSWORD: rootpassword                       # Password for the MySQL root user
+    ports:
+      - "8085:80"                                       # Expose phpMyAdmin on port 8080
+    depends_on:
+      - mysql                                           # Ensure that the MySQL container starts before phpMyAdmin
+    networks:
+      - db_network
+
+networks:
+  db_network:
+
+volumes:
+  db_data:
+
