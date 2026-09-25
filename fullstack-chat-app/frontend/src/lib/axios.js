@@ -6,7 +6,7 @@ dotenv.config();
 
 
 export const axiosInstance = axios.create({
-  baseURL: import.meta.env.MODE === "development" ? process.env.VITE_API_URL + "/api" : "/api",
+  baseURL: import.meta.env.MODE === "development" ? "http://localhost:8088" + "/api" : "/api",
   withCredentials: true,
 });
 
