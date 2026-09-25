@@ -1,11 +1,10 @@
-
 services:
   backend_chatapp:
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "5001:5001"
+      - "8088:5001"
     environment:
       - PORT=5001
       - MONGODB_URI=mongodb://mongodb:27017/chatapp
@@ -19,9 +18,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "5173:5173"
+      - "8087:5173"
     environment:
-      - VITE_API_URL=http://localhost:5001
+      - VITE_API_URL=http://localhost:8088
 
 
   mongodb:
@@ -40,5 +39,3 @@ volumes:
 networks:
   app_network:
     driver: bridge
-
-    
