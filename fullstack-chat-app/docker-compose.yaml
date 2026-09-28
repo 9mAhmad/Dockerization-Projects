@@ -20,7 +20,7 @@ services:
     ports:
       - "8087:5173"
     environment:
-      - VITE_API_URL=http://localhost:8088
+      - VITE_API_URL=http://localhost:5001
 
 
   mongodb:

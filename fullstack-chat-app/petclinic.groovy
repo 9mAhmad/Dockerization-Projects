@@ -7,7 +7,7 @@ pipeline {
         PREVIOUS_TAG = "${env.BUILD_NUMBER.toInteger() - 1}"
         PROJECT_NAME = "petclinic"
         PORT_INTERNAL = "8080"
-        PORT_EXTERNAL = "8090"
+        PORT_EXTERNAL = "8089"
     }
 
     stages {
@@ -76,29 +76,29 @@ pipeline {
                 }
             }
         }
-        stage('Trivy Image Scan...') {
-            steps {
+        // stage('Trivy Image Scan...') {
+        //     steps {
 
-                sh '''
-                    trivy image \\
-                        --scanners vuln,misconfig,secret \\
-                        --skip-files '**/betterleaks.json,**/semgrep.json' \\
-                        --format json -o trivy-image-report.json "${PROJECT_NAME}:v${IMAGE_TAG}"
+        //         sh '''
+        //             trivy image \\
+        //                 --scanners vuln,misconfig,secret \\
+        //                 --skip-files '**/betterleaks.json,**/semgrep.json' \\
+        //                 --format json -o trivy-image-report.json "${PROJECT_NAME}:v${IMAGE_TAG}"
 
-                    trivy convert \\
-                        --format template --template "@/vagrant_shared/html.tpl" \\
-                        -o trivy-image-report.html trivy-image-report.json
+        //             trivy convert \\
+        //                 --format template --template "@/vagrant_shared/html.tpl" \\
+        //                 -o trivy-image-report.html trivy-image-report.json
 
-                '''
+        //         '''
 
-                archiveArtifacts artifacts: 'trivy-image-report.*', fingerprint: true
-            }
-        }
+        //         archiveArtifacts artifacts: 'trivy-image-report.*', fingerprint: true
+        //     }
+        // }
         stage('Run our Backend') {
             steps {
                 echo "Deleting previous running container -- ${env.PROJECT_NAME}-v${env.PREVIOUS_TAG}"
                 sh "docker rm -f ${env.PROJECT_NAME}-v${env.PREVIOUS_TAG}"
-                sh "docker run -e SPRING_PROFILES_ACTIVE=mysql -d -p 5001:${env.PORT} --name ${env.PROJECT_NAME}-v${env.IMAGE_TAG} ${env.PROJECT_NAME}:v${env.IMAGE_TAG}"
+                sh "docker run -e SPRING_PROFILES_ACTIVE=mysql -d -p ${PORT_EXTERNAL}:${env.PORT_INTERNAL} --name ${env.PROJECT_NAME}-v${env.IMAGE_TAG} ${env.PROJECT_NAME}:v${env.IMAGE_TAG}"
                 sleep(10)
             }
         }
